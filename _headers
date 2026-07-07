@@ -1,0 +1,62 @@
+# Cloudflare Pages headers — see https://developers.cloudflare.com/pages/configuration/headers/
+# All matching rules apply top-to-bottom; "! Header" detaches a header set by an
+# earlier rule so more specific paths can replace Cache-Control cleanly.
+
+# Security headers + conservative default cache (HTML pages, 404.html, misc root files).
+# HTML is revalidated on every visit (ETag 304s keep this cheap) so redeploys with
+# content tweaks show up immediately.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Frozen WordPress asset trees (all CSS/JS/images/fonts live here, no HTML).
+# Pages reference them with ?ver= stamps, so a year of immutable caching is safe.
+# If you ever hand-edit one of these files in place, bump its ?ver= in the HTML
+# (or rename it) — returning browsers will not refetch an immutable URL.
+/wp-content/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+/wp-includes/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+# Crawler plumbing: modest cache.
+/robots.txt
+  ! Cache-Control
+  Cache-Control: public, max-age=3600
+
+/sitemap.xml
+  ! Cache-Control
+  Cache-Control: public, max-age=3600
+
+/sitemap_index.xml
+  ! Cache-Control
+  Cache-Control: public, max-age=3600
+
+/post-sitemap.xml
+  ! Cache-Control
+  Cache-Control: public, max-age=3600
+
+/page-sitemap.xml
+  ! Cache-Control
+  Cache-Control: public, max-age=3600
+
+/category-sitemap.xml
+  ! Cache-Control
+  Cache-Control: public, max-age=3600
+
+/post_tag-sitemap.xml
+  ! Cache-Control
+  Cache-Control: public, max-age=3600
+
+/author-sitemap.xml
+  ! Cache-Control
+  Cache-Control: public, max-age=3600
+
+/main-sitemap.xsl
+  ! Cache-Control
+  Cache-Control: public, max-age=3600

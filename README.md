@@ -2,11 +2,44 @@
 
 A static export of the Finnoff Aviation Sales site (Pilatus PC-12 aircraft-for-sale
 listings; WordPress + Elementor Pro), repaired, slimmed, and made fully relative for
-**portfolio hosting on GitHub Pages**.
+**portfolio hosting on Cloudflare Pages or GitHub Pages**.
 
 > All internal links and asset references use **relative paths**, so the site works
 > from a project subpath (`username.github.io/repo/`), a user site, a custom domain,
 > or the local filesystem.
+
+## Deploying to Cloudflare Pages
+
+The repo is pre-optimized for Pages and well within its limits (3,880 files < 20,000;
+largest file 4 MB < 25 MiB).
+
+**Git integration** (recommended): Cloudflare dashboard → *Workers & Pages → Create →
+Pages → Connect to Git*, pick this repo, leave **Build command empty** and **Build
+output directory = `/`**. Every push redeploys.
+
+**Direct upload** (no repo needed):
+
+```bash
+npx wrangler pages deploy . --project-name finnoff-aircraft-sales
+```
+
+What Pages picks up automatically from this repo:
+
+- **`_headers`** — security headers site-wide; 1-year `immutable` caching for the frozen
+  `/wp-content` + `/wp-includes` asset trees (HTML pages revalidate on every visit, so
+  redeploys show up immediately). ⚠️ If you hand-edit a CSS/JS file **in place**, bump its
+  `?ver=` string in the referencing HTML or rename the file — browsers won't refetch an
+  immutable URL for a year.
+- **`_redirects`** — two listing pages (`/archive/page/4/`, `/tag/v1/page/7/`) were never
+  captured in the original export; their pagination links redirect back to the start of
+  the listing instead of dead-ending.
+- **`404.html`** — served for any unknown path (self-contained, branded).
+
+Notes: `wrangler pages deploy` ignores `.gitignore`/`.assetsignore`, so keep the tree
+free of `.DS_Store` before an upload (`find . -name .DS_Store -delete`); macOS Finder
+recreates them when browsing folders. `robots.txt` has no `Sitemap:` line and the
+sitemap `<loc>` values are relative — add absolute URLs only if search indexing of the
+deployed copy ever matters (for a portfolio copy it usually shouldn't).
 
 ## Deploying to GitHub Pages
 
@@ -31,6 +64,14 @@ listings; WordPress + Elementor Pro), repaired, slimmed, and made fully relative
   with absolute `finnoffaircstg.wpenginepowered.com` URLs (it even loaded its CSS from
   staging); all were rewritten to relative, and the WordPress oembed/RSD discovery `<link>`
   tags (which carried the staging domain) were stripped site-wide.
+- **Fixed gallery lightbox links (Cloudflare Pages pass)** — 64 Elementor lightbox `href`s
+  on 12 aircraft-listing pages still pointed at the `finnoff-aviation-aircraft-sales.local`
+  dev domain (full-size gallery photos failed to open); rewritten to relative
+  `../wp-content/uploads/...` paths, all 64 targets verified present.
+- **Fixed footer/parent-site links (Cloudflare Pages pass)** — the footer "Finnoff Aviation"
+  link on all 112 pages pointed at the abandoned `finnoff.a2hosted.com` staging clone (now
+  `https://finnoff.com/`), and 77 insecure `http://finnoff.com` anchors were upgraded to
+  `https`.
 
 ## Slimmed the repo: ~1.5 GB → ~190 MB
 

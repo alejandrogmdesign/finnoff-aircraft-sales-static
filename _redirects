@@ -1,0 +1,8 @@
+# Cloudflare Pages redirects — https://developers.cloudflare.com/pages/configuration/redirects/
+# Two listing pages were never captured in the original export; their pagination
+# links would otherwise dead-end on the 404 page. Send visitors back to the start
+# of the respective listing instead.
+/archive/page/4/ /archive/ 302
+/archive/page/4 /archive/ 302
+/tag/v1/page/7/ /tag/v1/ 302
+/tag/v1/page/7 /tag/v1/ 302
